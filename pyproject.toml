@@ -11,7 +11,7 @@ dependencies = [
   "pydantic>=2.7",
   "tenacity>=8.2",            # retry backoff (optional)
   "python-json-logger>=2.0",  # log 
-  "mcp>=1.2",                 # SDK MCP (server)
+  "mcp>=1.2,<2.0",            # SDK MCP (server)
   "typer>=0.12",              # (optional) CLI 
   "python-dotenv>=1.0"
 ]

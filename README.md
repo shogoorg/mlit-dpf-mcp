@@ -170,4 +170,4 @@ mlit-dpf-mcp/
 
 ## 8. お問い合わせ
 本リポジトリはα版です。お気づきの点があれば下記お問い合わせフォームまでご連絡下さい。
-* [国土交通データプラットフォームお問い合わせフォーム](https://docs.google.com/forms/d/e/1FAIpQLScHlMUInwpoyREX672SFJuwo8ZfpllQUatPuYNRiKYZkoe6nQ/viewform)
+* [国土交通データプラットフォームお問い合わせフォーム](https://forms.cloud.microsoft/pages/responsepage.aspx?id=6dtgrapYuEqgn0vEnGaJBOrx9xG7EpJLvmRgrTAinyBUQlpHVUQ2UEM0TUkwVUdMVE5HNUM0OTlXVyQlQCN0PWcu&route=shorturl)
