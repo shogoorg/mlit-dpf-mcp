@@ -104,8 +104,17 @@ Claude DesktopなどのMCP対応AIアプリケーション および Python が�
 
 6. **MCP サーバーの起動**
 
+   **SSE サーバー（HTTP/SSE）として起動する場合（デフォルト）:**
    ```bash
-   python -m src.server
+   python -m src.server --transport sse --port 8000
+   # または
+   uvicorn src.server:app --port 8000
+   ```
+   エンドポイント: `http://localhost:8000/sse`
+
+   **stdio（標準入出力）モードで起動する場合:**
+   ```bash
+   python -m src.server --transport stdio
    ```
 
 7. **Claude Desktopの設定ファイルを開く**

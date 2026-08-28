@@ -13,7 +13,9 @@ dependencies = [
   "python-json-logger>=2.0",  # log 
   "mcp>=1.2,<2.0",            # SDK MCP (server)
   "typer>=0.12",              # (optional) CLI 
-  "python-dotenv>=1.0"
+  "python-dotenv>=1.0",
+  "starlette>=0.38",
+  "uvicorn>=0.30"
 ]
 
 [tool.pytest.ini_options]
