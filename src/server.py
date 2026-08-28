@@ -6,6 +6,7 @@ if str(ROOT) not in sys.path:
 # --- END robust import header ---
 
 import json
+import os
 from typing import Any, Dict, List, Optional, Union, TypeAlias
 
 from mcp.server import Server
@@ -34,6 +35,12 @@ from src.config import load_settings
 from src.utils import logger, new_request_id, Timer
 
 from mcp.server.stdio import stdio_server
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.routing import Route, Mount
+from starlette.requests import Request
+import uvicorn
+import argparse
 import anyio
 
 try:
@@ -1489,6 +1496,33 @@ async def handle_call_tool(name: str, arguments: dict) -> List[types.TextContent
         await client.close()
 
 
+sse = SseServerTransport("/messages/")
+
+
+async def handle_sse(request: Request):
+    async with sse.connect_sse(
+        request.scope, request.receive, request._send
+    ) as (read_stream, write_stream):
+        caps = server.get_capabilities(
+            notification_options=NotificationOptions(),
+            experimental_capabilities={},
+        )
+        init_opts = InitializationOptions(
+            server_name="mlit-mcp",
+            server_version="0.1.0",
+            capabilities=caps,
+        )
+        await server.run(read_stream, write_stream, init_opts)
+
+
+app = Starlette(
+    routes=[
+        Route("/sse", endpoint=handle_sse),
+        Mount("/messages/", app=sse.handle_post_message),
+    ]
+)
+
+
 async def _main() -> None:
     async with stdio_server() as (read, write):
         caps = server.get_capabilities(
@@ -1506,4 +1540,28 @@ async def _main() -> None:
 
 
 if __name__ == "__main__":
-    anyio.run(_main)
+    parser = argparse.ArgumentParser(description="MLIT DPF MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "sse"],
+        default="sse",
+        help="Transport type (sse or stdio, default: sse)",
+    )
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host for SSE server (default: 0.0.0.0)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("PORT", 8000)),
+        help="Port for SSE server (default: PORT env or 8000)",
+    )
+    args = parser.parse_args()
+
+    if args.transport == "sse":
+        uvicorn.run(app, host=args.host, port=args.port)
+    else:
+        anyio.run(_main)
+
