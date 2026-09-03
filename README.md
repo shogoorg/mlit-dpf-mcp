@@ -21,26 +21,109 @@
 本MCPサーバーを利用することで、大規模言語モデル（LLM）と直接連携し、対話形式で直感的にデータを検索・取得することが可能になります。APIに関する専門的な知識がなくても、誰でも簡単に国土交通データプラットフォームから曖昧な指示や複雑な条件設定でデータを検索・取得が可能な、新しいデータ活用のかたちを提供します。
 
 
-## 2. 主な機能
-国土交通データプラットフォームの利用者向けAPIを活用し、以下の機能を提供します：
-* `search`（キーワードの指定によりデータを検索します。並べ替えや件数の指定も可能です。）
-* `search_by_location_rectangle`（指定した矩形範囲と交差するデータを検索します。）
-* `search_by_location_point_distance`（指定した地点と半径からなる円形範囲と交差するデータを検索します。）
-* `search_by_attribute`（カタログ名、データセット名、都道府県、市区町村などの属性を指定してデータを検索します。）
-* `get_data`（データの詳細情報を取得します。）
-* `get_data_summary`（データIDとタイトルなどのデータの基本情報を取得します。）
-* `get_data_catalog`（データカタログやデータセットの詳細情報を取得します。）
-* `get_data_catalog_summary`（IDやタイトルなどのデータカタログやデータセットの基本情報を取得します。）
-* `get_file_download_urls`（ファイルのダウンロード用URLを取得します（有効期限：60秒）。）
-* `get_zipfile_download_url`（複数ファイルをZIP形式でまとめたダウンロードURLを取得します（有効期限：60秒）。）
-* `get_thumbnail_urls`（サムネイル画像のURLを取得します（有効期限：60秒）。）
-* `get_all_data`（条件に一致する大量のデータを一括取得します。）
-* `get_count_data`（条件に一致するデータ件数を取得します。）
-* `get_suggest`（キーワード検索時の候補を取得します。）
-* `get_prefecture_data`（都道府県名・コードの一覧を取得します。）
-* `get_municipality_data`（市区町村名・コードの一覧を取得します。）
-* `get_mesh`（指定したメッシュに含まれるデータを取得します。）
-* `normalize_codes`（入力された都道府県名・市区町村名を正規化します。）
+## 2. 主な機能と代表プロンプト一覧
+
+国土交通データプラットフォームの利用者向けAPIを活用し、以下の18の機能と対話型プロンプトを提供します：
+
+### 1. Search系（複数対象・範囲検索）
+
+1. **検索 (Search)**
+   * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞周辺**の**＜建築物、住所＞**」
+   * *(English: "Buildings and addresses around <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall>")*
+
+2. **位置矩形による検索 (Search by Location Rectangle)**
+   * ①「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞から＜浦和駅、藤沢駅、京都駅、東舞鶴駅＞にかけてのエリア**の**＜建築物、住所＞**」
+   * *(English: "Buildings and addresses in the area spanning from <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> to <Urawa Station, Fujisawa Station, Kyoto Station, Higashi-Maizuru Station>")*
+   * ②（緯度経度指定時）「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞周辺**の緯度経度範囲＜**北緯35.85〜35.87、東経139.64〜139.66**＞の**＜建築物、住所＞**」
+   * *(English: "Buildings and addresses within coordinate bounding box <Lat 35.85-35.87, Lon 139.64-139.66> around <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall>")*
+
+3. **位置地点と距離による検索 (Search by Location Point Distance)**
+   * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞周辺**から半径＜**1km以内**＞の**＜建築物、住所＞**」
+   * *(English: "Buildings and addresses within <1km radius> around <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall>")*
+
+4. **属性による検索 (Search by Attribute)**
+   * ①「**＜さいたま市浦和区、藤沢市、京都市中京区、舞鶴市＞**の**＜建築物、住所＞**」
+   * *(English: "Buildings and addresses in <Urawa Ward (Saitama), Fujisawa City, Nakagyo Ward (Kyoto), Maizuru City>")*
+   * ②（施設種別指定時）「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の＜**公共施設（庁舎、学校、避難施設）**＞の**建築物**」
+   * *(English: "<Public facilities (city halls, schools, evacuation shelters)> in <Saitama City, Fujisawa City, Kyoto City, Maizuru City>")*
+
+---
+
+### 2. Get系（単一対象・詳細取得）
+
+5. **データ取得 (Get Data)**
+   * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**の**＜建築物、住所＞ さらに詳しく**」
+   * *(English: "<buildings, addresses> of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+6. **データサマリー取得 (Get Data Summary)**
+   * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**の**＜建築物、住所＞の基本情報 さらに詳しく**」
+   * *(English: "Basic information on <buildings, addresses> of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+7. **データカタログ取得 (Get Data Catalog)**
+   * 「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の**データセット（カテゴリー） さらに詳しく**」
+   * *(English: "Datasets (categories) of <Saitama City, Fujisawa City, Kyoto City, Maizuru City> Learn more")*
+
+8. **データカタログサマリー取得 (Get Data Catalog Summary)**
+   * 「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の**データセット（カテゴリー）のサマリー さらに詳しく**」
+   * *(English: "Summary of datasets (categories) of <Saitama City, Fujisawa City, Kyoto City, Maizuru City> Learn more")*
+
+9. **ファイルダウンロードURL取得 (Get File Download URLs)**
+   * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**の**＜建築物、住所＞のダウンロードURL さらに詳しく**」
+   * *(English: "Download URLs for <buildings, addresses> of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+10. **ZIPファイルダウンロードURL取得 (Get Zipfile Download URL)**
+    * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**の**＜建築物、住所＞のZIPダウンロードURL さらに詳しく**」
+    * *(English: "ZIP download URL for <buildings, addresses> of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+11. **サムネイルURL取得 (Get Thumbnail URLs)**
+    * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**の**建築物のサムネイルURL さらに詳しく**」
+    * *(English: "Thumbnail URLs for buildings of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+12. **全データ取得 (Get All Data)**
+    * 「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の**＜建築物、住所＞の全件データ さらに詳しく**」
+    * *(English: "All data records for <buildings, addresses> of <Saitama City, Fujisawa City, Kyoto City, Maizuru City> Learn more")*
+
+13. **カウントデータ取得 (Get Count Data)**
+    * 「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の**＜建築物、住所＞の登録件数 さらに詳しく**」
+    * *(English: "Record counts of <buildings, addresses> in <Saitama City, Fujisawa City, Kyoto City, Maizuru City> Learn more")*
+
+14. **サジェスト取得 (Get Suggest)**
+    * 「『**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞**』の**＜建築物、住所＞のサジェスト候補 さらに詳しく**」
+    * *(English: "Search suggestions for <buildings, addresses> of '<Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall>' Learn more")*
+
+15. **都道府県データ取得 (Get Prefecture Data)**
+    * 「**＜埼玉県、神奈川県、京都府＞**の**都道府県情報 さらに詳しく**」
+    * *(English: "Prefecture information for <Saitama, Kanagawa, Kyoto> Learn more")*
+
+16. **市区町村データ取得 (Get Municipality Data)**
+    * 「**＜さいたま市、藤沢市、京都市、舞鶴市＞**の**市区町村情報 さらに詳しく**」
+    * *(English: "Municipality information for <Saitama City, Fujisawa City, Kyoto City, Maizuru City> Learn more")*
+
+17. **メッシュ取得 (Get Mesh)**
+    * ①「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞がある＜1kmメッシュ（地域区画）＞**の**＜建築物、住所＞ さらに詳しく**」
+    * *(English: "<buildings, addresses> in the <1km regional mesh grid> of <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+    * ②（メッシュコード指定時）「地域メッシュコード＜**53394523**＞内の**＜建築物、住所＞ さらに詳しく**」
+    * *(English: "<buildings, addresses> within regional mesh code <53394523> Learn more")*
+
+---
+
+### 3. 正規化 (Normalization)
+
+18. **コード正規化 (Normalize Codes)**
+    * 「**＜埼玉県さいたま市、神奈川県藤沢市、京都府京都市、京都府舞鶴市＞**の**都道府県名と市区町村名 正規化**」
+    * *(English: "Normalize prefecture and municipality names of <Saitama City (Saitama), Fujisawa City (Kanagawa), Kyoto City (Kyoto), Maizuru City (Kyoto)>")*
+
+---
+
+### 4. 統合系（自律エージェント・探索＆深掘り）
+
+* **抽象バージョン (Abstract Baseline)**:
+  * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞周辺**の**＜データセット、建築物、住所＞ さらに詳しく**」
+  * *(English: "<datasets, buildings, addresses> around <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
+
+* **具体バージョン (Concrete Scenario: 洪水データ・避難所・住所)**:
+  * 「**＜さいたま市役所、藤沢市役所、京都市役所、舞鶴市役所＞周辺**の**＜洪水データ、避難所、住所＞ さらに詳しく**」
+  * *(English: "<flood data, evacuation shelters, addresses> around <Saitama City Hall, Fujisawa City Hall, Kyoto City Hall, Maizuru City Hall> Learn more")*
 
 
 ## 3. 動作環境
