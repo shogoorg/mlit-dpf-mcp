@@ -39,6 +39,7 @@ from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
 from starlette.routing import Route, Mount
 from starlette.requests import Request
+from starlette.responses import Response
 import uvicorn
 import argparse
 import anyio
@@ -1513,6 +1514,7 @@ async def handle_sse(request: Request):
             capabilities=caps,
         )
         await server.run(read_stream, write_stream, init_opts)
+    return Response()
 
 
 app = Starlette(
